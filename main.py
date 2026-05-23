@@ -34,3 +34,12 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+    @router.message(Command("menu"))
+async def menu_command(message: Message):
+
+    stories = await get_stories()
+
+    await message.answer(
+        "🏠 Главное меню",
+        reply_markup=menu_keyboard(stories)
+    )

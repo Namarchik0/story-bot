@@ -2,6 +2,18 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
+def bottom_menu():
+
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                KeyboardButton(
+                    text="🏠 Главное меню"
+                )
+            ]
+        ],
+        resize_keyboard=True
+    )
 
 
 def menu_keyboard(stories):

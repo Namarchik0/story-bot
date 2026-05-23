@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 
+from keyboards import bottom_menu
 from database import get_stories, get_story
 from keyboards import (
     menu_keyboard,
@@ -68,3 +69,5 @@ async def back(callback: CallbackQuery):
     )
 
     await callback.answer()
+    INFO:aiogram.dispatcher:Start polling
+INFO:aiogram.dispatcher:Run polling for bot @Fanfics_nut_bot id=8713000950 - 'фанфики'
