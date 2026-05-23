@@ -1,10 +1,6 @@
-import os
+TOKEN = "8713000950:AAEqThT3UsyYZh4D4tQ9M6qioAOsES74JsQ"
 
-TOKEN = os.getenv("TOKEN")
-
-ADMIN_IDS = list(
-    map(
-        int,
-        os.getenv("ADMIN_IDS").split(",")
-    )
-)
+ADMINS = [
+    7380516183,
+    1938629080
+]
