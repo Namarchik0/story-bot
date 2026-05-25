@@ -2,66 +2,113 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
-def bottom_menu():
 
-    return ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                KeyboardButton(
-                    text="🏠 Главное меню"
-                )
-            ]
-        ],
-        resize_keyboard=True
-    )
+from config import SUPPORT_LINK, AUTHOR_LINK
 
 
-def menu_keyboard(stories):
-
-    buttons = []
-
-    for story in stories:
-
-        buttons.append([
-            InlineKeyboardButton(
-                text=story[1],
-                callback_data=f"story_{story[0]}"
-            )
-        ])
-
-    return InlineKeyboardMarkup(
-        inline_keyboard=buttons
-    )
-
-
-def story_keyboard():
+def main_menu():
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="⬅️ Назад",
-                    callback_data="back"
+                    text="📚 Читать рассказы",
+                    callback_data="stories"
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="🏠 Главное меню",
-                    callback_data="menu"
+                    text="🆘 Поддержка",
+                    url=SUPPORT_LINK
+                ),
+                InlineKeyboardButton(
+                    text="👨‍💻 Автор",
+                    url=AUTHOR_LINK
                 )
             ]
         ]
     )
 
 
-def admin_keyboard():
+def admin_menu():
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+
+            [
+                InlineKeyboardButton(
+                    text="📚 Читать рассказы",
+                    callback_data="stories"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="➕ Добавить",
+                    callback_data="add_story"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="✏ Редактировать",
+                    callback_data="edit_story"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="🗑 Удалить",
+                    callback_data="delete_story"
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="🆘 Поддержка",
+                    url=SUPPORT_LINK
+                ),
+
+                InlineKeyboardButton(
+                    text="👨‍💻 Автор",
+                    url=AUTHOR_LINK
+                )
+            ],
+
+            [
+                InlineKeyboardButton(
+                    text="🏠 Главное меню",
+                    callback_data="home"
+                )
+            ]
+        ]
+    )
+
+
+def back_menu():
 
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="➕ Добавить рассказ",
-                    callback_data="add_story"
+                    text="⬅ Назад",
+                    callback_data="stories"
+                ),
+                InlineKeyboardButton(
+                    text="🏠 Главное меню",
+                    callback_data="home"
+                )
+            ]
+        ]
+    )
+def cancel_menu():
+
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="⬅ Отмена",
+                    callback_data="cancel_edit"
                 )
             ]
         ]
