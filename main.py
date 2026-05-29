@@ -330,7 +330,7 @@ async def finish_text(
 
     await state.set_state(AddStory.photo)
 
-   from aiogram.types import ReplyKeyboardRemove
+   
 
 await message.answer(
     "🖼 Отправьте фото:",
