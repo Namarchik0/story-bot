@@ -1,3 +1,4 @@
+from aiogram.types import ReplyKeyboardRemove
 from aiogram.types import (
     Message,
     CallbackQuery,
@@ -329,9 +330,12 @@ async def finish_text(
 
     await state.set_state(AddStory.photo)
 
-    await message.answer(
-        "🖼 Отправьте фото или любое сообщение без фото для сохранения без картинки."
-    )
+   from aiogram.types import ReplyKeyboardRemove
+
+await message.answer(
+    "🖼 Отправьте фото:",
+    reply_markup=ReplyKeyboardRemove()
+)
     
 @dp.message(AddStory.photo)
 async def add_photo(
@@ -345,6 +349,9 @@ async def add_photo(
 
     if message.photo:
         photo = message.photo[-1].file_id
+
+        print("DATA =", data)
+print("PHOTO =", photo)
 
     await add_story(
         data["title"],
