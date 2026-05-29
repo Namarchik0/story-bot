@@ -330,7 +330,8 @@ async def finish_text(
     await state.set_state(AddStory.photo)
 
     await message.answer(
-        "🖼 Отправьте фото:"
+        "🖼 Отправьте фото:",
+        reply_markup=ReplyKeyboardRemove()
     )
 
 @dp.message(AddStory.photo)
