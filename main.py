@@ -330,7 +330,6 @@ async def finish_text(
 
     await state.set_state(AddStory.photo)
 
-   
 
 await message.answer(
     "🖼 Отправьте фото:",
@@ -351,7 +350,7 @@ async def add_photo(
         photo = message.photo[-1].file_id
 
         print("DATA =", data)
-print("PHOTO =", photo)
+        print("PHOTO =", photo)
 
     await add_story(
         data["title"],
