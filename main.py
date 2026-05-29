@@ -1,3 +1,11 @@
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardMarkup,
+    KeyboardButton
+)
 from flask import Flask
 from threading import Thread
 import os
@@ -265,31 +273,66 @@ async def add_title(
 ):
 
     await state.update_data(
-        title=message.text
+        title=message.text,
+        text_parts=[]
     )
 
     await state.set_state(AddStory.text)
 
-    await message.answer(
-        "📖 Отправьте текст:"
+    kb = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="✅ Готово")]
+        ],
+        resize_keyboard=True
     )
 
-@dp.message(AddStory.text)
-async def add_text(
+    await message.answer(
+        "📖 Отправляйте части рассказа.\n\nКогда закончите — нажмите «✅ Готово».",
+        reply_markup=kb
+    )
+
+@dp.message(AddStory.text, F.text != "✅ Готово")
+async def add_text_part(
         message: Message,
         state: FSMContext
 ):
 
+    data = await state.get_data()
+
+    text_parts = data.get("text_parts", [])
+    text_parts.append(message.text)
+
     await state.update_data(
-        text=message.text
+        text_parts=text_parts
+    )
+
+    await message.answer(
+        "➕ Текст добавлен. Отправьте следующую часть или нажмите «✅ Готово»."
+    )
+
+
+@dp.message(AddStory.text, F.text == "✅ Готово")
+async def finish_text(
+        message: Message,
+        state: FSMContext
+):
+
+    data = await state.get_data()
+
+    full_text = "\n\n".join(
+        data.get("text_parts", [])
+    )
+
+    await state.update_data(
+        text=full_text
     )
 
     await state.set_state(AddStory.photo)
 
     await message.answer(
-        "🖼 Отправьте фото:"
+        "🖼 Отправьте фото или любое сообщение без фото для сохранения без картинки."
     )
-
+    
 @dp.message(AddStory.photo)
 async def add_photo(
         message: Message,
