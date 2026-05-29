@@ -6,6 +6,7 @@ from aiogram.types import (
     InlineKeyboardButton,
     ReplyKeyboardMarkup,
     KeyboardButton
+    ReplyKeyboardRemove
 )
 from flask import Flask
 from threading import Thread
