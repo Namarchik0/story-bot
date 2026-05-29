@@ -280,17 +280,9 @@ async def add_title(
 
     await state.set_state(AddStory.text)
 
-    kb = ReplyKeyboardMarkup(
-        keyboard=[
-            [KeyboardButton(text="✅ Готово")]
-        ],
-        resize_keyboard=True
-    )
-
     await message.answer(
-        "📖 Отправляйте части рассказа.\n\nКогда закончите — нажмите «✅ Готово».",
-        reply_markup=kb
-    )
+    "📖 Отправляйте части рассказа.\n\nКогда закончите — напишите Готово."
+)
 
 @dp.message(AddStory.text, F.text != "✅ Готово")
 async def add_text_part(
