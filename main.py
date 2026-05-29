@@ -311,7 +311,6 @@ async def add_text_part(
         "➕ Текст добавлен. Отправьте следующую часть или нажмите «✅ Готово»."
     )
 
-
 @dp.message(AddStory.text, F.text == "✅ Готово")
 async def finish_text(
         message: Message,
@@ -330,12 +329,10 @@ async def finish_text(
 
     await state.set_state(AddStory.photo)
 
+    await message.answer(
+        "🖼 Отправьте фото:"
+    )
 
-await message.answer(
-    "🖼 Отправьте фото:",
-    reply_markup=ReplyKeyboardRemove()
-)
-    
 @dp.message(AddStory.photo)
 async def add_photo(
         message: Message,
@@ -364,7 +361,6 @@ async def add_photo(
         "✅ Рассказ добавлен!",
         reply_markup=admin_menu()
     )
-
 # =========================
 # DELETE STORY
 # =========================
