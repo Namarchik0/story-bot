@@ -275,6 +275,8 @@ async def add_title(
         state: FSMContext
 ):
 
+    print("🔥 STEP 1: add_title triggered")
+
     await state.update_data(
         title=message.text,
         text_parts=[]
