@@ -1,115 +1,26 @@
-from aiogram.types import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton
-)
-
-from config import SUPPORT_LINK, AUTHOR_LINK
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-def main_menu():
+def main_menu(is_admin=False):
+    buttons = [
+        [InlineKeyboardButton(text="📖 Читать рассказы", callback_data="stories")],
+        [InlineKeyboardButton(text="👤 Автор", url="https://t.me/Luntik_kss")]
+    ]
 
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="📚 Читать рассказы",
-                    callback_data="stories"
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="🆘 Поддержка",
-                    url=SUPPORT_LINK
-                ),
-                InlineKeyboardButton(
-                    text="👨‍💻 Автор",
-                    url=AUTHOR_LINK
-                )
-            ]
-        ]
-    )
+    if is_admin:
+        buttons.insert(
+            1,
+            [InlineKeyboardButton(text="➕ Добавить рассказ", callback_data="add_story")]
+        )
 
+        buttons.insert(
+            2,
+            [InlineKeyboardButton(text="✏️ Редактировать", callback_data="edit_story")]
+        )
 
-def admin_menu():
+        buttons.insert(
+            3,
+            [InlineKeyboardButton(text="🗑 Удалить", callback_data="delete_story")]
+        )
 
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-
-            [
-                InlineKeyboardButton(
-                    text="📚 Читать рассказы",
-                    callback_data="stories"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="➕ Добавить",
-                    callback_data="add_story"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="✏ Редактировать",
-                    callback_data="edit_story"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="🗑 Удалить",
-                    callback_data="delete_story"
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="🆘 Поддержка",
-                    url=SUPPORT_LINK
-                ),
-
-                InlineKeyboardButton(
-                    text="👨‍💻 Автор",
-                    url=AUTHOR_LINK
-                )
-            ],
-
-            [
-                InlineKeyboardButton(
-                    text="🏠 Главное меню",
-                    callback_data="home"
-                )
-            ]
-        ]
-    )
-
-
-def back_menu():
-
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⬅ Назад",
-                    callback_data="stories"
-                ),
-                InlineKeyboardButton(
-                    text="🏠 Главное меню",
-                    callback_data="home"
-                )
-            ]
-        ]
-    )
-def cancel_menu():
-
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(
-                    text="⬅ Отмена",
-                    callback_data="cancel_edit"
-                )
-            ]
-        ]
-    )
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
