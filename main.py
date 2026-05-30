@@ -296,46 +296,33 @@ async def add_title(
         reply_markup=kb
     )
 
-@dp.message(AddStory.text, F.text != "✅ Готово")
-async def add_text_part(
-        message: Message,
-        state: FSMContext
-):
+@dp.message(AddStory.text)
+async def add_text_part(message: Message, state: FSMContext):
+
+    if message.text == "✅ Готово":
+
+        data = await state.get_data()
+
+        full_text = "\n\n".join(data.get("text_parts", []))
+
+        await state.update_data(text=full_text)
+        await state.set_state(AddStory.photo)
+
+        await message.answer(
+            "🖼 Отправьте фото:",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return
 
     data = await state.get_data()
 
     text_parts = data.get("text_parts", [])
     text_parts.append(message.text)
 
-    await state.update_data(
-        text_parts=text_parts
-    )
+    await state.update_data(text_parts=text_parts)
 
     await message.answer(
         "➕ Текст добавлен. Отправьте следующую часть или нажмите «✅ Готово»."
-    )
-
-@dp.message(AddStory.text, F.text == "✅ Готово")
-async def finish_text(
-        message: Message,
-        state: FSMContext
-):
-
-    data = await state.get_data()
-
-    full_text = "\n\n".join(
-        data.get("text_parts", [])
-    )
-
-    await state.update_data(
-        text=full_text
-    )
-
-    await state.set_state(AddStory.photo)
-
-    await message.answer(
-        "🖼 Отправьте фото:",
-        reply_markup=ReplyKeyboardRemove()
     )
 
 @dp.message(AddStory.photo)
