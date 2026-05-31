@@ -1,26 +1,203 @@
-from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
 import asyncio
+from aiogram import Bot, Dispatcher, F, Router
+from aiogram.filters import Command
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    ReplyKeyboardRemove
+)
+from aiogram.fsm.context import FSMContext
 
-from config import TOKEN
-import database
+from config import BOT_TOKEN, ADMINS
+from database import (
+    init_db,
+    add_story,
+    get_stories,
+    get_story,
+    delete_story,
+    add_rating,
+    get_rating
+)
+from keyboards import main_menu, finish_kb, rating_kb
+from states import AddStory
 
-from handlers.start import router as start_router
+bot = Bot(token=BOT_TOKEN)
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
 
 
-async def main():
-    bot = Bot(
-        token=TOKEN,
-        default=DefaultBotProperties(
-            parse_mode=ParseMode.HTML
-        )
+def is_admin(user_id: int):
+    return user_id in ADMINS
+
+
+# ---------------- START ----------------
+
+@router.message(Command("start"))
+async def start(message: Message):
+    await message.answer(
+        "📚 Главное меню",
+        reply_markup=main_menu(is_admin(message.from_user.id))
     )
 
-    dp = Dispatcher()
 
-    dp.include_router(start_router)
+@router.callback_query(F.data == "home")
+async def home(c: CallbackQuery):
+    await c.message.edit_text(
+        "📚 Главное меню",
+        reply_markup=main_menu(is_admin(c.from_user.id))
+    )
+    await c.answer()
 
+
+# ---------------- READ ----------------
+
+@router.callback_query(F.data == "read")
+async def read(c: CallbackQuery):
+    stories = await get_stories()
+
+    kb = []
+    for s in stories:
+        kb.append([
+            InlineKeyboardButton(
+                text=s[1],
+                callback_data=f"story_{s[0]}"
+            )
+        ])
+
+    await c.message.edit_text(
+        "Выбери рассказ:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
+    await c.answer()
+
+
+@router.callback_query(F.data.startswith("story_"))
+async def story(c: CallbackQuery):
+    story_id = int(c.data.split("_")[1])
+
+    s = await get_story(story_id)
+    avg, count = await get_rating(story_id)
+
+    text = f"<b>{s[1]}</b>\n\n{s[2]}\n\n⭐ {round(avg or 0,1)} ({count})"
+
+    await c.message.edit_text(
+        text,
+        reply_markup=rating_kb(story_id),
+        parse_mode="HTML"
+    )
+    await c.answer()
+
+
+@router.callback_query(F.data.startswith("rate_"))
+async def rate(c: CallbackQuery):
+    _, sid, r = c.data.split("_")
+
+    await add_rating(int(sid), c.from_user.id, int(r))
+    await c.answer("Оценено!")
+
+
+# ---------------- ADD STORY ----------------
+
+@router.callback_query(F.data == "add")
+async def add(c: CallbackQuery, state: FSMContext):
+    if not is_admin(c.from_user.id):
+        return await c.answer("Нет доступа")
+
+    await state.set_state(AddStory.title)
+    await c.message.edit_text("Введите название:")
+    await c.answer()
+
+
+@router.message(AddStory.title)
+async def title(m: Message, state: FSMContext):
+    await state.update_data(title=m.text, parts=[])
+    await state.set_state(AddStory.content)
+
+    await m.answer(
+        "Пиши текст. Когда закончишь — нажми Готово",
+        reply_markup=finish_kb()
+    )
+
+
+@router.message(AddStory.content, F.text != "✅ Готово")
+async def collect(m: Message, state: FSMContext):
+    data = await state.get_data()
+    parts = data["parts"]
+    parts.append(m.text)
+    await state.update_data(parts=parts)
+
+
+@router.message(AddStory.content, F.text == "✅ Готово")
+async def save(m: Message, state: FSMContext):
+    data = await state.get_data()
+
+    await add_story(
+        data["title"],
+        "\n\n".join(data["parts"])
+    )
+
+    await state.clear()
+
+    # 🔥 УБИРАЕМ КНОПКУ "ГОТОВО"
+    await m.answer(
+        "✅ Сохранено",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    # возвращаем меню
+    await m.answer(
+        "📚 Меню",
+        reply_markup=main_menu(is_admin(m.from_user.id))
+    )
+
+
+# ---------------- DELETE ----------------
+
+@router.callback_query(F.data == "delete")
+async def delete_menu(c: CallbackQuery):
+
+    if not is_admin(c.from_user.id):
+        return await c.answer("Нет доступа")
+
+    stories = await get_stories()
+
+    if not stories:
+        await c.message.edit_text("Нет рассказов")
+        return await c.answer()
+
+    kb = []
+    for s in stories:
+        kb.append([
+            InlineKeyboardButton(
+                text=s[1],
+                callback_data=f"del_{s[0]}"
+            )
+        ])
+
+    await c.message.edit_text(
+        "Выбери рассказ для удаления:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
+    await c.answer()
+
+
+@router.callback_query(F.data.startswith("del_"))
+async def do_delete(c: CallbackQuery):
+    story_id = int(c.data.split("_")[1])
+
+    await delete_story(story_id)
+
+    await c.message.edit_text("✅ Удалено")
+    await c.answer()
+
+
+# ---------------- MAIN ----------------
+
+async def main():
+    await init_db()
     await dp.start_polling(bot)
 
 
