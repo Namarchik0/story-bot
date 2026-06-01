@@ -17,11 +17,12 @@ from database import (
     get_stories,
     get_story,
     delete_story,
+    update_story
     add_rating,
     get_rating
 )
 from keyboards import main_menu, finish_kb, rating_kb
-from states import AddStory
+from states import AddStory, EditStory
 
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
@@ -151,6 +152,67 @@ async def save(m: Message, state: FSMContext):
     await m.answer(
         "📚 Меню",
         reply_markup=main_menu(is_admin(m.from_user.id))
+    )
+
+@router.callback_query(F.data == "edit")
+async def edit_menu(c: CallbackQuery):
+
+    if not is_admin(c.from_user.id):
+        return await c.answer("Нет доступа")
+
+    stories = await get_stories()
+
+    kb = []
+
+    for s in stories:
+        kb.append([
+            InlineKeyboardButton(
+                text=s[1],
+                callback_data=f"edit_{s[0]}"
+            )
+        ])
+
+    await c.message.edit_text(
+        "Выбери рассказ:",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=kb)
+    )
+
+    await c.answer()
+
+@router.callback_query(F.data.startswith("edit_"))
+async def edit_story(c: CallbackQuery, state: FSMContext):
+
+    story_id = int(c.data.split("_")[1])
+
+    story = await get_story(story_id)
+
+    await state.update_data(story_id=story_id)
+
+    await state.set_state(EditStory.content)
+
+    await c.message.answer(
+        f"Текущий текст:\n\n{story[2]}\n\nОтправь новую версию текста."
+    )
+
+    await c.answer()
+
+@router.message(EditStory.content)
+async def save_edit(m: Message, state: FSMContext):
+
+    data = await state.get_data()
+
+    await update_story(
+        data["story_id"],
+        m.text
+    )
+
+    await state.clear()
+
+    await m.answer(
+        "✅ Рассказ обновлён",
+        reply_markup=main_menu(
+            is_admin(m.from_user.id)
+        )
     )
 
 

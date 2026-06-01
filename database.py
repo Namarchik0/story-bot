@@ -80,3 +80,11 @@ async def get_rating(story_id):
             (story_id,)
         )
         return await cur.fetchone()
+
+async def update_story(story_id, content):
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute(
+            "UPDATE stories SET content=? WHERE id=?",
+            (content, story_id)
+        )
+        await db.commit()
