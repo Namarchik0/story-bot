@@ -8,9 +8,9 @@ def main_menu(is_admin=False):
     ]
 
     if is_admin:
-    kb.append([InlineKeyboardButton(text="➕ Добавить", callback_data="add")])
-    kb.append([InlineKeyboardButton(text="✏️ Редактировать", callback_data="edit")])
-    kb.append([InlineKeyboardButton(text="🗑 Удалить", callback_data="delete")])
+        kb.append([InlineKeyboardButton(text="➕ Добавить", callback_data="add")])
+        kb.append([InlineKeyboardButton(text="✏️ Редактировать", callback_data="edit")])
+        kb.append([InlineKeyboardButton(text="🗑 Удалить", callback_data="delete")])
 
     kb.append([InlineKeyboardButton(text="👤 Автор", url=AUTHOR_LINK)])
 

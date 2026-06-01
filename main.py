@@ -17,7 +17,7 @@ from database import (
     get_stories,
     get_story,
     delete_story,
-    update_story
+    update_story,
     add_rating,
     get_rating
 )
