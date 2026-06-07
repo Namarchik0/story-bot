@@ -82,13 +82,30 @@ async def story(c: CallbackQuery):
     s = await get_story(story_id)
     avg, count = await get_rating(story_id)
 
-    text = f"<b>{s[1]}</b>\n\n{s[2]}\n\n⭐ {round(avg or 0,1)} ({count})"
+    # убираем меню выбора рассказов
+    await c.message.delete()
 
-    await c.message.edit_text(
-        text,
-        reply_markup=rating_kb(story_id),
-        parse_mode="HTML"
+    title = f"<b>{s[1]}</b>\n\n"
+    content = s[2]
+
+    limit = 4000
+
+    for i in range(0, len(content), limit):
+        part = content[i:i + limit]
+
+        if i == 0:
+            await c.message.answer(
+                title + part,
+                parse_mode="HTML"
+            )
+        else:
+            await c.message.answer(part)
+
+    await c.message.answer(
+        f"⭐ {round(avg or 0,1)} ({count})",
+        reply_markup=rating_kb(story_id)
     )
+
     await c.answer()
 
 
