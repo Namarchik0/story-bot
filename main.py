@@ -46,10 +46,19 @@ async def start(message: Message):
 
 @router.callback_query(F.data == "home")
 async def home(c: CallbackQuery):
-    await c.message.edit_text(
+
+    # удалить сообщение с рассказом
+    try:
+        await c.message.delete()
+    except:
+        pass
+
+    # показать главное меню
+    await c.message.answer(
         "📚 Главное меню",
         reply_markup=main_menu(is_admin(c.from_user.id))
     )
+
     await c.answer()
 
 
