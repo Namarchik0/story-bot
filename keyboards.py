@@ -19,7 +19,10 @@ def main_menu(is_admin=False):
 
 def finish_kb():
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="✅ Готово")]],
+        keyboard=[
+            [KeyboardButton(text="✅ Готово")],
+            [KeyboardButton(text="⬅️ Назад")]
+        ],
         resize_keyboard=True
     )
 

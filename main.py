@@ -148,6 +148,24 @@ async def collect(m: Message, state: FSMContext):
     await state.update_data(parts=parts)
 
 
+@router.message(AddStory.content, F.text == "⬅️ Назад")
+async def cancel_add(m: Message, state: FSMContext):
+
+    await state.clear()
+
+    await m.answer(
+        "❌ Добавление отменено",
+        reply_markup=ReplyKeyboardRemove()
+    )
+
+    await m.answer(
+        "📚 Главное меню",
+        reply_markup=main_menu(
+            is_admin(m.from_user.id)
+        )
+    )
+
+
 @router.message(AddStory.content, F.text == "✅ Готово")
 async def save(m: Message, state: FSMContext):
     data = await state.get_data()
@@ -269,7 +287,17 @@ async def do_delete(c: CallbackQuery):
 
     await delete_story(story_id)
 
-    await c.message.edit_text("✅ Удалено")
+    await c.message.edit_text(
+        "✅ Удалено"
+    )
+
+    await c.message.answer(
+        "📚 Главное меню",
+        reply_markup=main_menu(
+            is_admin(c.from_user.id)
+        )
+    )
+
     await c.answer()
 
 
