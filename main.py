@@ -131,11 +131,13 @@ async def add(c: CallbackQuery, state: FSMContext):
 
 @router.message(AddStory.title)
 async def title(m: Message, state: FSMContext):
+
     await state.update_data(title=m.text, parts=[])
+
     await state.set_state(AddStory.content)
 
     await m.answer(
-        "Пиши текст. Когда закончишь — нажми Готово",
+        "Пиши текст. Когда закончишь — нажми Готово или Назад",
         reply_markup=finish_kb()
     )
 
@@ -147,6 +149,19 @@ async def collect(m: Message, state: FSMContext):
     parts.append(m.text)
     await state.update_data(parts=parts)
 
+@router.message(AddStory.title, F.text == "⬅️ Назад")
+async def cancel_title(m: Message, state: FSMContext):
+
+    await state.clear()
+
+    await m.answer("❌ Добавление отменено")
+
+    await m.answer(
+        "📚 Главное меню",
+        reply_markup=main_menu(
+            is_admin(m.from_user.id)
+        )
+    )
 
 @router.message(AddStory.content, F.text == "⬅️ Назад")
 async def cancel_add(m: Message, state: FSMContext):
